@@ -1,17 +1,40 @@
-# agrosmart
+# 🌱 AgroSmart — Smart Irrigation Companion
 
-A new Flutter project.
+A Flutter app for smart farm irrigation management built for small-scale farmers.
 
-## Getting Started
+## Features
+- 📊 Real-time sensor dashboard (temperature, humidity, soil moisture)
+- 💧 Motor control — auto and manual irrigation modes
+- 📋 Irrigation log with SQLite local storage
+- 🌦️ 7-day weather forecast with auto irrigation scheduling
+- 🌿 AI crop advisor with bilingual tips (English + Tamil)
+- 📈 Water usage charts (daily, weekly, monthly)
+- 🔔 Push notifications for rain alerts and soil moisture
+- 🤖 AI disease detection (demo mode)
+- 🌙 Dark mode support
+- 🗣️ Bilingual UI — English + Tamil
 
-This project is a starting point for a Flutter application.
+## Tech Stack
+- Flutter 3.44 + Dart 3.9
+- Provider (state management)
+- SQLite / sqflite (local database)
+- OpenWeatherMap API (weather)
+- fl_chart (charts)
+- flutter_local_notifications
 
-A few resources to get you started if this is your first Flutter project:
+## Hardware (Physical Project)
+- Arduino / ESP microcontroller
+- DHT11 Temperature & Humidity sensor
+- Soil moisture sensor
+- Water pump motor with relay
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+> Note: This app runs in demo mode with simulated sensor data.
+> Connect to real Arduino/ESP hardware to get live readings.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Setup
+1. Clone the repo
+2. Copy `lib/core/constants/app_constants.example.dart` → `app_constants.dart`
+3. Add your [OpenWeatherMap API key](https://openweathermap.org/api)
+4. Run `flutter pub get`
+5. Run `flutter run`
+
