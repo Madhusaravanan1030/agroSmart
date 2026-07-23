@@ -1,0 +1,65 @@
+name: agrosmart
+description: Smart irrigation companion app for farmers
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management
+  provider: ^6.1.5+1
+
+  # Local database
+  sqflite: ^2.4.2
+  path: ^1.9.1
+
+  # HTTP
+  http: ^1.5.0
+
+  # Local storage
+  shared_preferences: ^2.5.3
+
+  # Date formatting
+  intl: ^0.20.2
+
+  fl_chart: ^0.70.2
+  flutter_local_notifications: ^18.0.1
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  flutter_launcher_icons: ^0.14.3
+
+flutter:
+  uses-material-design: true
+
+  assets:
+  - assets/images/
+  - assets/model/
+
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  min_sdk_android: 21
+
