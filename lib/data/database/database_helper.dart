@@ -1,9 +1,7 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/irrigation_log.dart';
-
-// Singleton — only one database instance exists for the whole app lifetime.
-// Access it anywhere with: DatabaseHelper.instance
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
@@ -11,7 +9,6 @@ class DatabaseHelper {
 
   DatabaseHelper._init();
 
-  // Returns the open database, creating it on first call
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
@@ -19,10 +16,19 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    // getDatabasesPath() returns the correct folder on both Android and iOS
+    // ✅ Web guard — sqflite file paths don't exist on web
+    // Use in-memory database so the app still runs without crashing
+    if (kIsWeb) {
+      return await openDatabase(
+        inMemoryDatabasePath,
+        version: 1,
+        onCreate: _createTables,
+      );
+    }
+
+    // Mobile — use a real persistent file on device storage
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'agrosmart.db');
-
     return await openDatabase(
       path,
       version: 1,
@@ -30,7 +36,6 @@ class DatabaseHelper {
     );
   }
 
-  // Called once when the database is first created on this device
   Future<void> _createTables(Database db, int version) async {
     await db.execute('''
       CREATE TABLE irrigation_logs (
@@ -46,7 +51,6 @@ class DatabaseHelper {
 
   // ── CRUD operations ───────────────────────────────────────────
 
-  /// Insert a new log entry. Returns the new row's id.
   Future<int> insertLog(IrrigationLog log) async {
     final db = await database;
     return await db.insert(
@@ -56,7 +60,6 @@ class DatabaseHelper {
     );
   }
 
-  /// Update an existing log (e.g. when a session ends and we set endTime)
   Future<void> updateLog(IrrigationLog log) async {
     final db = await database;
     await db.update(
@@ -67,27 +70,18 @@ class DatabaseHelper {
     );
   }
 
-  /// Delete a single log entry by id
   Future<void> deleteLog(int id) async {
     final db = await database;
     await db.delete('irrigation_logs', where: 'id = ?', whereArgs: [id]);
   }
 
-  /// Fetch all logs, newest first
   Future<List<IrrigationLog>> getAllLogs() async {
     final db = await database;
-    final rows = await db.query(
-      'irrigation_logs',
-      orderBy: 'startTime DESC',
-    );
+    final rows = await db.query('irrigation_logs', orderBy: 'startTime DESC');
     return rows.map(IrrigationLog.fromMap).toList();
   }
 
-  /// Fetch logs for a specific date range
-  Future<List<IrrigationLog>> getLogsBetween(
-    DateTime from,
-    DateTime to,
-  ) async {
+  Future<List<IrrigationLog>> getLogsBetween(DateTime from, DateTime to) async {
     final db = await database;
     final rows = await db.query(
       'irrigation_logs',
@@ -98,22 +92,19 @@ class DatabaseHelper {
     return rows.map(IrrigationLog.fromMap).toList();
   }
 
-  /// Fetch only today's logs
   Future<List<IrrigationLog>> getTodayLogs() async {
-    final now = DateTime.now();
+    final now   = DateTime.now();
     final start = DateTime(now.year, now.month, now.day);
-    final end = start.add(const Duration(days: 1));
+    final end   = start.add(const Duration(days: 1));
     return getLogsBetween(start, end);
   }
 
-  /// Fetch this week's logs (last 7 days)
   Future<List<IrrigationLog>> getWeekLogs() async {
-    final now = DateTime.now();
+    final now   = DateTime.now();
     final start = now.subtract(const Duration(days: 7));
     return getLogsBetween(start, now);
   }
 
-  /// Close the database (rarely needed, but good practice)
   Future<void> close() async {
     final db = await database;
     await db.close();

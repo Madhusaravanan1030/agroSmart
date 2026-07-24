@@ -1,26 +1,21 @@
-# Flutter
+# Flutter build outputs
+build/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
-build/
 
 # Android
 android/.gradle
-android/captures/
-android/gradlew
-android/gradlew.bat
 android/local.properties
-android/key.properties
+android/captures/
 *.iml
 
 # iOS
-ios/.symlinks/
 ios/Pods/
-ios/Flutter/Flutter.framework
-ios/Flutter/Flutter.podspec
+ios/.symlinks/
 
 # IDE
 .idea/
@@ -28,5 +23,5 @@ ios/Flutter/Flutter.podspec
 *.suo
 *.user
 
-# API keys — never upload these
+# API keys — keep off GitHub
 lib/core/constants/app_constants.dart
