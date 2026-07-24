@@ -2,10 +2,9 @@
 
 A Flutter app that helps farmers manage irrigation intelligently using weather data, AI crop advice, and automated motor control.
 
-🔗 **[Live Demo](https://Madhusaravanan1030.github.io/agrosmart/)**
+🔗 **[Live Demo](https://madhusaravanan1030.github.io/agrosmart/)**
 
 ---
-
 ## Features
 
 | Feature | Description |
@@ -43,7 +42,7 @@ The app runs in **demo mode** with simulated sensor data when hardware is not co
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/agrosmart.git
+git clone https://github.com/Madhusaravanan1030/agrosmart.git
 cd agrosmart
 
 # Add your API key
