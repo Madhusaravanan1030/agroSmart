@@ -1,27 +1,44 @@
-# Flutter build outputs
-build/
+# ── API Keys — NEVER upload these ────────────────────────────────
+lib/core/constants/app_constants.dart
+lib/data/services/chat_service.dart
+
+# ── Flutter ───────────────────────────────────────────────────────
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
+build/
 
-# Android
-android/.gradle
-android/local.properties
+# ── Android ───────────────────────────────────────────────────────
+android/.gradle/
 android/captures/
+android/local.properties
+android/key.properties
 *.iml
+*.jks
+*.keystore
 
-# iOS
-ios/Pods/
+# ── iOS ───────────────────────────────────────────────────────────
 ios/.symlinks/
+ios/Pods/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner/GeneratedPluginRegistrant.*
 
-# IDE
+# ── IDE ───────────────────────────────────────────────────────────
 .idea/
 .vscode/
 *.suo
 *.user
+*.swp
+*.DS_Store
+Thumbs.db
 
-# API keys — keep off GitHub
-lib/core/constants/app_constants.dart
+# ── Web build (we push docs/ separately for GitHub Pages) ─────────
+# docs/ is intentionally NOT ignored — it's our GitHub Pages folder
+
+# ── Logs ──────────────────────────────────────────────────────────
+*.log
+pubspec.lock

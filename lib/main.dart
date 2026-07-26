@@ -6,17 +6,22 @@ import 'providers/irrigation_provider.dart';
 import 'providers/weather_provider.dart';
 import 'providers/crop_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/chat_provider.dart';
 
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/log/log_screen.dart';
 import 'screens/weather/weather_screen.dart';
 import 'screens/advisor/advisor_screen.dart';
+import 'screens/chat/chat_screen.dart';
 import 'screens/settings/settings_screen.dart';
 
 import 'core/theme/app_theme.dart';
+import 'data/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.instance.init();
+  await NotificationService.instance.requestPermission();
   runApp(const AgroSmartApp());
 }
 
@@ -32,8 +37,8 @@ class AgroSmartApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => IrrigationProvider()),
         ChangeNotifierProvider(create: (_) => WeatherProvider()),
         ChangeNotifierProvider(create: (_) => CropProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
-      // Consumer<ThemeProvider> rebuilds MaterialApp when theme changes
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) {
           return MaterialApp(
@@ -65,6 +70,7 @@ class _MainNavigationState extends State<MainNavigation> {
     LogScreen(),
     WeatherScreen(),
     AdvisorScreen(),
+    ChatScreen(),      // ← new AI chat tab
     SettingsScreen(),
   ];
 
@@ -88,14 +94,34 @@ class _MainNavigationState extends State<MainNavigation> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: AppTheme.primaryGreen,
         unselectedItemColor: Colors.grey,
-        selectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
-        unselectedLabelStyle: const TextStyle(fontSize: 11),
+        selectedLabelStyle: const TextStyle(
+            fontSize: 10, fontWeight: FontWeight.w500),
+        unselectedLabelStyle: const TextStyle(fontSize: 10),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined),    activeIcon: Icon(Icons.home),           label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.history_outlined),  activeIcon: Icon(Icons.history),        label: 'Log'),
-          BottomNavigationBarItem(icon: Icon(Icons.cloud_outlined),    activeIcon: Icon(Icons.cloud),          label: 'Weather'),
-          BottomNavigationBarItem(icon: Icon(Icons.eco_outlined),      activeIcon: Icon(Icons.eco),            label: 'Crops'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), activeIcon: Icon(Icons.settings),       label: 'Settings'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home),
+              label: 'Home'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.history_outlined),
+              activeIcon: Icon(Icons.history),
+              label: 'Log'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.cloud_outlined),
+              activeIcon: Icon(Icons.cloud),
+              label: 'Weather'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.eco_outlined),
+              activeIcon: Icon(Icons.eco),
+              label: 'Crops'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.chat_bubble_outline),
+              activeIcon: Icon(Icons.chat_bubble),
+              label: 'AI Chat'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              activeIcon: Icon(Icons.settings),
+              label: 'Settings'),
         ],
       ),
     );
