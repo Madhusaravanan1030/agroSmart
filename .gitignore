@@ -16,7 +16,7 @@ android/.gradle/
 android/captures/
 android/local.properties
 android/key.properties
-*.iml
+*.iml\
 *.jks
 *.keystore
 
