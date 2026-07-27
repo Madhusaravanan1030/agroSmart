@@ -42154,7 +42154,7 @@ p=t.N
 h=A.c([A.ar(["role","system","content","You are AgroSmart AI, a friendly and knowledgeable farm assistant for farmers in Tamil Nadu, India.\n\nYou have real-time access to this farmer's data:\n- Farm name: "+c+"\n- Location: "+a+"\n- Temperature: "+j+"\xb0C\n- Humidity: "+i+"%\n- Soil moisture: "+g+"% "+h+"\n- Active crops: "+l+"\n- Sensor mode: Simulated (demo)\n\nYour responsibilities:\n- Answer questions about irrigation, crop health, soil, weather, and farming practices\n- Always reference the actual sensor readings when giving advice\n- If soil moisture is below 40%, recommend irrigation\n- If temperature is above 33\xb0C, warn about heat stress\n- Keep answers concise \u2014 2 to 4 sentences max \u2014 farmers are busy\n- Be warm and encouraging, like a knowledgeable neighbour\n- Never give generic advice \u2014 always tie it to the sensor data\n\n"+k],p,p)],t.m0)
 B.b.P(h,new A.a5(d,new A.a04(),A.W(d).i("a5<1,aR<v,v>>")))
 h.push(A.ar(["role","user","content",a0],p,p))
-g=A.fQ("https://agrosmart-proxy.onrender.com/")
+g=A.fQ("https://agrosmart-proxy.onrender.com/chat")
 i=A.ar(["Content-Type","application/json"],p,p)
 s=3
 return A.G(A.aTW(g,B.bC.VG(A.ar(["model","llama-3.1-8b-instant","messages",h,"max_tokens",512,"temperature",0.7,"stream",!1],p,t.K),null),i),$async$w3)
