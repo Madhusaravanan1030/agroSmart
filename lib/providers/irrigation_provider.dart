@@ -3,29 +3,26 @@ import '../data/models/irrigation_log.dart';
 import '../data/database/database_helper.dart';
 import '../data/services/notification_service.dart';
 
-
-// Controls the motor (auto/manual) and manages the irrigation log.
-
 class IrrigationProvider extends ChangeNotifier {
   final _db = DatabaseHelper.instance;
 
   // ── Motor state ───────────────────────────────────────────────
-  bool _isAutoMode = true;      // true = auto, false = manual
+  bool _isAutoMode     = true;
   bool _isMotorRunning = false;
-  IrrigationLog? _activeSession; // the session currently in progress
+  IrrigationLog? _activeSession;
 
-  bool get isAutoMode => _isAutoMode;
+  bool get isAutoMode     => _isAutoMode;
   bool get isMotorRunning => _isMotorRunning;
 
   // ── Log state ─────────────────────────────────────────────────
   List<IrrigationLog> _logs = [];
   List<IrrigationLog> get logs => _logs;
 
-  String _activeFilter = 'today'; // 'today' | 'week' | 'month'
+  String _activeFilter = 'today';
   String get activeFilter => _activeFilter;
 
-  // Summary stats shown at the top of the log screen
-  int get totalSessions => _logs.where((l) => l.status == 'completed').length;
+  int get totalSessions =>
+      _logs.where((l) => l.status == 'completed').length;
 
   String get totalDurationLabel {
     final minutes = _logs
@@ -35,7 +32,7 @@ class IrrigationProvider extends ChangeNotifier {
     return '${minutes}m';
   }
 
-  // ── Load logs from SQLite ─────────────────────────────────────
+  // ── Load logs ─────────────────────────────────────────────────
 
   Future<void> loadLogs() async {
     await _applyFilter(_activeFilter);
@@ -52,11 +49,11 @@ class IrrigationProvider extends ChangeNotifier {
         _logs = await _db.getWeekLogs();
         break;
       case 'month':
-        final now = DateTime.now();
+        final now   = DateTime.now();
         final start = DateTime(now.year, now.month, 1);
         _logs = await _db.getLogsBetween(start, now);
         break;
-      default: // 'today'
+      default:
         _logs = await _db.getTodayLogs();
     }
     notifyListeners();
@@ -64,67 +61,88 @@ class IrrigationProvider extends ChangeNotifier {
 
   // ── Motor controls ────────────────────────────────────────────
 
-  /// Toggle between auto and manual mode
   void toggleAutoMode(bool value) {
     _isAutoMode = value;
     notifyListeners();
   }
 
-  /// Start the motor — creates a new log entry in SQLite
   Future<void> startMotor({String mode = 'manual'}) async {
     if (_isMotorRunning) return;
 
     _isMotorRunning = true;
-    await NotificationService.instance.showMotorStarted(mode);
+    notifyListeners(); // ✅ update UI immediately before async work
 
-    final log = IrrigationLog(
-      startTime: DateTime.now(),
-      mode: mode,
-      status: 'running',
-    );
+    try {
+      // Save log to database
+      final log = IrrigationLog(
+        startTime: DateTime.now(),
+        mode: mode,
+        status: 'running',
+      );
+      final id = await _db.insertLog(log);
+      _activeSession = log.copyWith(id: id);
 
-    final id = await _db.insertLog(log);
-    _activeSession = log.copyWith(id: id);
+      // ✅ Only show notification on mobile — web guard inside the service
+      await NotificationService.instance.showMotorStarted(mode);
 
-    await loadLogs();
+      await loadLogs();
+    } catch (e) {
+      // If DB fails on web (in-memory), still keep motor running in UI
+      debugPrint('startMotor error: $e');
+    }
+
     notifyListeners();
   }
 
-  /// Stop the motor — updates the log entry with end time
   Future<void> stopMotor() async {
-    if (!_isMotorRunning || _activeSession == null) return;
+    if (!_isMotorRunning) return;
 
     _isMotorRunning = false;
+    notifyListeners(); // ✅ update UI immediately
 
-    final completed = _activeSession!.copyWith(
-      endTime: DateTime.now(),
-      status: 'completed',
-    );
+    try {
+      if (_activeSession != null) {
+        final completed = _activeSession!.copyWith(
+          endTime: DateTime.now(),
+          status: 'completed',
+        );
+        await _db.updateLog(completed);
 
-    await _db.updateLog(completed);
+        // ✅ Only show notification on mobile — web guard inside the service
+        await NotificationService.instance
+            .showMotorStopped(completed.durationLabel);
 
-    await NotificationService.instance.showMotorStopped(completed.durationLabel);
-    _activeSession = null;
+        _activeSession = null;
+      }
+      await loadLogs();
+    } catch (e) {
+      debugPrint('stopMotor error: $e');
+    }
 
-    await loadLogs();
     notifyListeners();
   }
 
-  /// Add a skipped session to the log (called by weather scheduler)
   Future<void> addSkippedLog(String reason) async {
-    final log = IrrigationLog(
-      startTime: DateTime.now(),
-      mode: 'auto',
-      status: 'skipped',
-      skipReason: reason,
-    );
-    await _db.insertLog(log);
-    await loadLogs();
+    try {
+      final log = IrrigationLog(
+        startTime:  DateTime.now(),
+        mode:       'auto',
+        status:     'skipped',
+        skipReason: reason,
+      );
+      await _db.insertLog(log);
+      await loadLogs();
+    } catch (e) {
+      debugPrint('addSkippedLog error: $e');
+    }
   }
 
-  /// Delete a log entry by id
   Future<void> deleteLog(int id) async {
-    await _db.deleteLog(id);
-    await loadLogs();
+    try {
+      await _db.deleteLog(id);
+      await loadLogs();
+    } catch (e) {
+      debugPrint('deleteLog error: $e');
+    }
   }
 }
