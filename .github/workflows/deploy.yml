@@ -32,7 +32,6 @@ jobs:
           flutter build web \
             --release \
             --base-href "/agroSmart/" \
-            --dart-define=GROQ_API_KEY=${{ secrets.GROQ_API_KEY }} \
             --dart-define=WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
 
       - name: Add .nojekyll

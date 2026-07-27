@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/sensor_data.dart';
 
 class ChatMessage {
-  final String role;
+  final String role;     // 'user' or 'assistant'
   final String content;
   final DateTime timestamp;
 
@@ -15,15 +15,12 @@ class ChatMessage {
 }
 
 class ChatService {
-  // ✅ Key is injected at build time via --dart-define
-  // Never hardcode the key here
-  static const String _apiKey = String.fromEnvironment(
-    'GROQ_API_KEY',
-    defaultValue: '',
-  );
-  static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-  static const String _model  = 'llama-3.1-8b-instant';
+  // ✅ Proxy URL — Groq key lives on Render server, never in this file
+  // Replace with your actual Render URL after deploying the proxy
+  static const String _proxyUrl =
+      'https://agrosmart-proxy.onrender.com/';
 
+  // Build system prompt with live farm context
   static String _buildContext({
     required SensorData sensor,
     required List<String> cropNames,
@@ -31,9 +28,13 @@ class ChatService {
     required String city,
     required bool isTamil,
   }) {
-    final cropList = cropNames.isEmpty ? 'Not specified' : cropNames.join(', ');
+    final cropList =
+        cropNames.isEmpty ? 'Not specified' : cropNames.join(', ');
+
     final lang = isTamil
-        ? 'முதலில் தமிழில் பதில் சொல்லுங்கள். பயனர் ஆங்கிலத்தில் கேட்டால் ஆங்கிலத்திலும் பதில் சொல்லலாம். சுருக்கமாக மற்றும் நடைமுறை ரீதியாக பதில் சொல்லுங்கள்.'
+        ? 'முதலில் தமிழில் பதில் சொல்லுங்கள். '
+          'பயனர் ஆங்கிலத்தில் கேட்டால் ஆங்கிலத்திலும் பதில் சொல்லலாம். '
+          'சுருக்கமாக மற்றும் நடைமுறை ரீதியாக பதில் சொல்லுங்கள்.'
         : 'Respond in English. Keep answers short and practical for a farmer.';
 
     return '''
@@ -69,11 +70,9 @@ $lang''';
     required String city,
     required bool isTamil,
   }) async {
-    if (_apiKey.isEmpty) {
-      throw Exception('No API key — build with --dart-define=GROQ_API_KEY=your_key');
-    }
-
+    // Build messages in OpenAI format (Groq uses the same format)
     final messages = <Map<String, String>>[
+      // System prompt with live farm context
       {
         'role': 'system',
         'content': _buildContext(
@@ -84,24 +83,27 @@ $lang''';
           isTamil: isTamil,
         ),
       },
+      // Full conversation history for multi-turn memory
       ...history.map((m) => {
-        'role': m.role,
+        'role': m.role,       // 'user' or 'assistant'
         'content': m.content,
       }),
+      // Current user message
       {
         'role': 'user',
         'content': userMessage,
       },
     ];
 
+    // ✅ Call our proxy — no API key needed here
+    // The proxy adds the Authorization header server-side
     final response = await http.post(
-      Uri.parse(_apiUrl),
+      Uri.parse(_proxyUrl),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $_apiKey',
       },
       body: jsonEncode({
-        'model': _model,
+        'model': 'llama-3.1-8b-instant',
         'messages': messages,
         'max_tokens': 512,
         'temperature': 0.7,
@@ -112,12 +114,12 @@ $lang''';
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       final choices = data['choices'] as List;
-      if (choices.isEmpty) throw Exception('No response from Groq');
+      if (choices.isEmpty) throw Exception('No response from AI');
       return choices[0]['message']['content'] as String;
     } else {
       final error = jsonDecode(response.body);
-      final msg = error['error']?['message'] ?? response.body;
-      throw Exception('Groq error ${response.statusCode}: $msg');
+      final msg   = error['error']?['message'] ?? response.body;
+      throw Exception('AI error ${response.statusCode}: $msg');
     }
   }
 }
