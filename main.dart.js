@@ -42154,8 +42154,8 @@ p=t.N
 h=A.c([A.ar(["role","system","content","You are AgroSmart AI, a friendly and knowledgeable farm assistant for farmers in Tamil Nadu, India.\n\nYou have real-time access to this farmer's data:\n- Farm name: "+c+"\n- Location: "+a+"\n- Temperature: "+j+"\xb0C\n- Humidity: "+i+"%\n- Soil moisture: "+g+"% "+h+"\n- Active crops: "+l+"\n- Sensor mode: Simulated (demo)\n\nYour responsibilities:\n- Answer questions about irrigation, crop health, soil, weather, and farming practices\n- Always reference the actual sensor readings when giving advice\n- If soil moisture is below 40%, recommend irrigation\n- If temperature is above 33\xb0C, warn about heat stress\n- Keep answers concise \u2014 2 to 4 sentences max \u2014 farmers are busy\n- Be warm and encouraging, like a knowledgeable neighbour\n- Never give generic advice \u2014 always tie it to the sensor data\n\n"+k],p,p)],t.m0)
 B.b.P(h,new A.a5(d,new A.a04(),A.W(d).i("a5<1,aR<v,v>>")))
 h.push(A.ar(["role","user","content",a0],p,p))
-g=A.fQ("https://api.groq.com/openai/v1/chat/completions")
-i=A.ar(["Content-Type","application/json","Authorization","Bearer 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"],p,p)
+g=A.fQ("https://agrosmart-proxy.onrender.com/")
+i=A.ar(["Content-Type","application/json"],p,p)
 s=3
 return A.G(A.aTW(g,B.bC.VG(A.ar(["model","llama-3.1-8b-instant","messages",h,"max_tokens",512,"temperature",0.7,"stream",!1],p,t.K),null),i),$async$w3)
 case 3:o=a2
@@ -42164,12 +42164,12 @@ i=o.e
 h=o.w
 if(j===200){n=t.j.a(t.a.a(B.bC.ug(A.Z_(A.YN(i)).eo(h),null)).h(0,"choices"))
 j=J.bs(n)
-if(j.gad(n))throw A.i(A.cV("No response from Groq"))
+if(j.gad(n))throw A.i(A.cV("No response from AI"))
 q=A.bq(J.cL(J.cL(j.h(n,0),"message"),"content"))
 s=1
 break}else{g=J.cL(B.bC.ug(A.Z_(A.YN(i)).eo(h),null),"error")
 m=g==null?null:J.cL(g,"message")
-throw A.i(A.cV("Groq error "+j+": "+A.k(m==null?A.Z_(A.YN(i)).eo(h):m)))}case 1:return A.K(q,r)}})
+throw A.i(A.cV("AI error "+j+": "+A.k(m==null?A.Z_(A.YN(i)).eo(h):m)))}case 1:return A.K(q,r)}})
 return A.L($async$w3,r)}}
 A.a04.prototype={
 $1(a){var s=t.N
