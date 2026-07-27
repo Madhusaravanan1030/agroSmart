@@ -18,7 +18,7 @@ class ChatService {
   // ✅ Proxy URL — Groq key lives on Render server, never in this file
   // Replace with your actual Render URL after deploying the proxy
   static const String _proxyUrl =
-      'https://agrosmart-proxy.onrender.com/';
+      'https://agrosmart-proxy.onrender.com/chat';
 
   // Build system prompt with live farm context
   static String _buildContext({
