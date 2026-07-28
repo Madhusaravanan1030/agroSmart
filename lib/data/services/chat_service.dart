@@ -19,7 +19,6 @@ class ChatService {
   // Replace with your actual Render URL after deploying the proxy
   static const String _proxyUrl =
       'https://agrosmart-proxy.onrender.com/chat';
-
   // Build system prompt with live farm context
   static String _buildContext({
     required SensorData sensor,
